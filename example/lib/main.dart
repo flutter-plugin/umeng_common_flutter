@@ -20,10 +20,10 @@ class _MyAppState extends State<MyApp> {
     ).then((value) {}).whenComplete(() {
       Future.delayed(Duration(seconds: 15), () {
         UmengCommonSdk.init(
-          '6130b199695f794bbd9cb984',
-          'qiaomeng',
-          1,
-          '6130b199695f794bbd9cb984',
+          appKey: '6130b199695f794bbd9cb984',
+          channel: 'qiaomeng',
+          deviceType: 1,
+          pushSecret: '6130b199695f794bbd9cb984',
         );
       });
     });
@@ -38,13 +38,17 @@ class _MyAppState extends State<MyApp> {
         body: Column(
           children: [
             TextButton(
-                onPressed: () async {
-                  await UmengCommonSdk.onEvent('event_test', {
+              onPressed: () async {
+                await UmengCommonSdk.onEvent(
+                  event: 'event_test',
+                  properties: {
                     'key': '测试上传数据',
                     'key1': '测试上传数据',
-                  });
-                },
-                child: Text('上报事件')),
+                  },
+                );
+              },
+              child: Text('上报事件'),
+            ),
           ],
         ),
       ),

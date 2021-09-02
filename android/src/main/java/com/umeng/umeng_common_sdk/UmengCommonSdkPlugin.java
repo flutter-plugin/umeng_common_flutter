@@ -26,23 +26,21 @@ public class UmengCommonSdkPlugin implements FlutterPlugin, MethodCallHandler {
       Class<?> agent = Class.forName("com.umeng.analytics.MobclickAgent");
       Method[] methods = agent.getDeclaredMethods();
       for (Method m : methods) {
-        android.util.Log.e("UMLog", "Reflect:"+m);
-        if(m.getName().equals("onEventObject")) {
+        android.util.Log.e("UMLog", "Reflect:" + m);
+        if (m.getName().equals("onEventObject")) {
           versionMatch = true;
           break;
         }
       }
-      if(!versionMatch) {
+      if (!versionMatch) {
         android.util.Log.e("UMLog", "安卓SDK版本过低，建议升级至8以上");
-        //return;
-      }
-      else {
+        // return;
+      } else {
         android.util.Log.e("UMLog", "安卓依赖版本检查成功");
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
-      android.util.Log.e("UMLog", "SDK版本过低，请升级至8以上"+e.toString());
+      android.util.Log.e("UMLog", "SDK版本过低，请升级至8以上" + e.toString());
       return;
     }
 
@@ -51,12 +49,11 @@ public class UmengCommonSdkPlugin implements FlutterPlugin, MethodCallHandler {
       Class<?> config = Class.forName("com.umeng.commonsdk.UMConfigure");
       method = config.getDeclaredMethod("setWraperType", String.class, String.class);
       method.setAccessible(true);
-      method.invoke(null, "flutter","1.0");
+      method.invoke(null, "flutter", "1.0");
       android.util.Log.i("UMLog", "setWraperType:flutter1.0 success");
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
-      android.util.Log.e("UMLog", "setWraperType:flutter1.0"+e.toString());
+      android.util.Log.e("UMLog", "setWraperType:flutter1.0" + e.toString());
     }
   }
 
@@ -70,45 +67,43 @@ public class UmengCommonSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
   static Context mContext;
 
-
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if(!versionMatch) {
-      Log.e("UMLog", "onMethodCall:"+call.method+":安卓SDK版本过低，请升级至8以上");
+    if (!versionMatch) {
+      Log.e("UMLog", "onMethodCall:" + call.method + ":安卓SDK版本过低，请升级至8以上");
       return;
     }
-    if("preInit".equals(call.method)){
+    if ("preInit".equals(call.method)) {
       // 自动采集选择
-      //MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.AUTO);
+      // MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.AUTO);
 
-      //手动采集选择
+      // 手动采集选择
       MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.MANUAL);
       UMConfigure.setProcessEvent(true);
 
       String appKey = call.argument("appKey");
       String channel = call.argument("channel");
       boolean enableLog = call.argument("enableLog");
-      UMConfigure.preInit(mContext,appKey,channel);
+      UMConfigure.preInit(mContext, appKey, channel);
       UMConfigure.setLogEnabled(enableLog);
       result.success(true);
-    }else if("init".equals(call.method)){
+    } else if ("init".equals(call.method)) {
       String appKey = call.argument("appKey");
       String channel = call.argument("channel");
       Integer deviceType = call.argument("deviceType");
       String pushSecret = call.argument("pushSecret");
-      UMConfigure.init(mContext, appKey, channel, deviceType,
-              pushSecret);
+      UMConfigure.init(mContext, appKey, channel, deviceType, pushSecret);
       result.success(true);
-    }else if("onEvent".equals(call.method)){
-      //UMConfigure.DEVICE_TYPE_PHONE
+    } else if ("onEvent".equals(call.method)) {
+      // UMConfigure.DEVICE_TYPE_PHONE
       String eventId = call.argument("eventId");
-      Map<String,Object> properties = call.argument("properties");
-      MobclickAgent.onEventObject(mContext,eventId,properties);
+      Map<String, Object> properties = call.argument("properties");
+      MobclickAgent.onEventObject(mContext, eventId, properties);
 
       MobclickAgent.setSessionContinueMillis(1000l);
       MobclickAgent.setCatchUncaughtExceptions(true);
       result.success(true);
-    }else{
+    } else {
       result.notImplemented();
     }
   }
