@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class UmengCommonSdk {
@@ -12,8 +13,8 @@ class UmengCommonSdk {
   /// [enableLog]           是否启用日志
   ///
   static Future<bool> preInit({
-    required String appKey,
-    required String channel,
+    @required String appKey,
+    @required String channel,
     bool enableLog = false,
   }) async {
     final bool result = await _channel.invokeMethod('preInit', {
@@ -32,10 +33,10 @@ class UmengCommonSdk {
   /// [pushSecret]      密钥
   ///
   static Future<bool> init({
-    required String appKey,
-    required String channel,
+    @required String appKey,
+    @required String channel,
     int deviceType = 1,
-    String? pushSecret,
+    String pushSecret,
   }) async {
     final dynamic result = await _channel.invokeMethod('init', {
       'appKey': appKey,
@@ -52,8 +53,8 @@ class UmengCommonSdk {
   /// [properties]  事件参数
   ///
   static Future<bool> onEvent({
-    required String event,
-    required Map<String, dynamic> properties,
+    @required String event,
+    @required Map<String, dynamic> properties,
   }) async {
     return await _channel.invokeMethod('onEvent', {
       'eventId': event,
