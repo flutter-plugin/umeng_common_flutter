@@ -92,18 +92,34 @@ public class UmengCommonSdkPlugin implements FlutterPlugin, MethodCallHandler {
       String channel = call.argument("channel");
       Integer deviceType = call.argument("deviceType");
       String pushSecret = call.argument("pushSecret");
+      boolean mode = call.argument("mode");
+      boolean process = call.argument("process");
+      UMConfigure.setProcessEvent(process);
+      MobclickAgent.setPageCollectionMode(mode?MobclickAgent.PageMode.AUTO:MobclickAgent.PageMode.MANUAL);
       UMConfigure.init(mContext, appKey, channel, deviceType, pushSecret);
+      MobclickAgent.setCatchUncaughtExceptions(true);
       result.success(true);
     } else if ("onEvent".equals(call.method)) {
-      // UMConfigure.DEVICE_TYPE_PHONE
       String eventId = call.argument("eventId");
       Map<String, Object> properties = call.argument("properties");
       MobclickAgent.onEventObject(mContext, eventId, properties);
-
-      MobclickAgent.setSessionContinueMillis(1000l);
-      MobclickAgent.setCatchUncaughtExceptions(true);
+     // MobclickAgent.setSessionContinueMillis(1000l);
       result.success(true);
-    } else {
+    }else if("onSignIn".equals(call.method)) {
+      String userId = call.argument("userId");
+      String provider = call.argument("provider");
+      if(provider == null){
+        MobclickAgent.onProfileSignIn(userId);
+      }else{
+        MobclickAgent.onProfileSignIn(provider,userId);
+      }
+    }else if("onPageStart".equals(call.method)) {
+      String pageName = call.argument("pageName");
+      MobclickAgent.onPageStart(pageName);
+    }else if("onPageEnd".equals(call.method)) {
+      String pageName = call.argument("pageName");
+      MobclickAgent.onPageEnd(pageName);
+    }else {
       result.notImplemented();
     }
   }
