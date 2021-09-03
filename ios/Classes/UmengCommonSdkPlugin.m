@@ -8,12 +8,18 @@
 
 + (BOOL)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result{
     BOOL resultCode = YES;
-    if ([@"initCommon" isEqualToString:call.method]){
-        NSArray* arguments = (NSArray *)call.arguments;
-        NSString* appkey = arguments[1];
-        NSString* channel = arguments[2];
-        [UMConfigure initWithAppkey:appkey channel:channel];
-        //result(@"success");
+    if([@"preInit" isEqualToString:call.method]){
+        NSString *appKey = call.arguments[@"appKey"];
+        NSString *channel = call.arguments[@"channel"];
+        NSNumber *enableLog =call.arguments[@"enableLog"];
+        [UMConfigure setLogEnabled:enableLog.intValue == 1];
+        result(@YES);
+        NSLog(@"========>  appKey:%@   channel:%@    enableLog:%@",appKey,channel,enableLog);
+    }else if ([@"init" isEqualToString:call.method]){
+        NSString *appKey = call.arguments[@"appKey"];
+        NSString *channel = call.arguments[@"channel"];
+        [UMConfigure initWithAppkey:appKey channel:channel];
+        result(@YES);
     }
     else{
         resultCode = NO;
@@ -28,21 +34,25 @@
 
 + (BOOL)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result{
     BOOL resultCode = YES;
-    NSArray* arguments = (NSArray *)call.arguments;
     if ([@"onEvent" isEqualToString:call.method]){
-        NSString* eventName = arguments[0];
-        NSDictionary* properties = arguments[1];
-        [MobClick event:eventName attributes:properties];
-        //result(@"success");
+        NSString *eventId = call.arguments[@"eventId"];
+        NSDictionary* properties = call.arguments[@"properties"];
+        [MobClick event:eventId attributes:properties];
+        result(@YES);
     }
-    else if ([@"onProfileSignIn" isEqualToString:call.method]){
-        NSString* userID = arguments[0];
-        [MobClick profileSignInWithPUID:userID];
-        //result(@"success");
+    else if ([@"onSignIn" isEqualToString:call.method]){
+        NSString *userId = call.arguments[@"userId"];
+        NSString *provider = call.arguments[@"provider"];
+        if(provider){
+            [MobClick profileSignInWithPUID:userId provider:provider];
+        }else{
+            [MobClick profileSignInWithPUID:userId];
+        }
+        result(@YES);
     }
-    else if ([@"onProfileSignOff" isEqualToString:call.method]){
+    else if ([@"onSignOff" isEqualToString:call.method]){
         [MobClick profileSignOff];
-        //result(@"success");
+        result(@YES);
     }
     else if ([@"setPageCollectionModeAuto" isEqualToString:call.method]){
         [MobClick setAutoPageEnabled:YES];
@@ -53,14 +63,14 @@
         //result(@"success");
     }
     else if ([@"onPageStart" isEqualToString:call.method]){
-        NSString* pageName = arguments[0];
+        NSString* pageName = call.arguments[@"pageName"];
         [MobClick beginLogPageView:pageName];
-        //result(@"success");
+        result(@YES);
     }
     else if ([@"onPageEnd" isEqualToString:call.method]){
-        NSString* pageName = arguments[0];
+        NSString* pageName = call.arguments[@"pageName"];
         [MobClick endLogPageView:pageName];
-        //result(@"success");
+        result(@YES);
     }
     else if ([@"reportError" isEqualToString:call.method]){
         NSLog(@"reportError API not existed ");
